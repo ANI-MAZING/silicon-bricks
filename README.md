@@ -57,12 +57,14 @@ The map is loaded as a separate chunk so the control panel can appear first. Two
 
 `npm test` covers malformed / self-crossing / concave / narrow plots, randomized edits, supported coverage, FAR and OSR, whole-building clearances, high-rise and extra-large thresholds, independent tall-tower budgeting, exact floor arithmetic, road-size bands, project import validation and edit history. Production-browser checks are recorded in `docs/QA.md`.
 
-`npm audit` currently reports Angular peer-dependency advisories through clipper2-js 1.2.4. This React app imports its pure geometry bundle, which has no Angular imports; Angular is not part of the production chunks. Upstream package metadata still installs those peers. This remains a dependency-maintenance limitation, not an audited security guarantee.
+The pure `clipper2-js@1.2.4` runtime is vendored under `vendor/clipper2-js` with its original copyright notices, Boost licence, type declarations and SHA-256 provenance. Its runtime is unmodified. The local package wrapper omits unused Angular peer dependencies that otherwise installed obsolete Angular versions; no audit suppression or global peer-dependency override is used. See `vendor/clipper2-js/UPSTREAM.md` for update instructions.
 
 ## Sources and attribution
 
 See `docs/SOURCES.md` for clause locations, review date and limitations. Buildings and roads: © OpenStreetMap contributors, ODbL, retrieved 2026-11-24 via Overpass. `npm run bake` refreshes the same bounded extract and requires network access. MapLibre GL JS is BSD-3-Clause; clipper2-js is Boost Software License.
 
 ## Deployment
+
+The public GitHub repository is configured to test, build, audit and deploy `main` to GitHub Pages through `.github/workflows/ci.yml`. Pull requests run verification without deployment. The same static build can be hosted elsewhere.
 
 Deploy only the contents of `dist/` to a static host, or configure a Vite project with `npm run build` and output directory `dist`. Keep `.env*`, `gm_start.json`, raw transcripts and assignment credentials out of the deployment and repository. Build output contains no assignment MCP connection or credentials. The assignment submission is a separate action and is not triggered by this app.

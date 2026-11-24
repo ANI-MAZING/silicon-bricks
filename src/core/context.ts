@@ -1,5 +1,5 @@
 // Site context from the baked OpenStreetMap extract (ODbL, © OpenStreetMap contributors).
-import { Frame, LonLat, Pt, Ring, distToPolyline, dist, toLocal } from './geo'
+import { Frame, LonLat, Pt, Ring, distToPolyline, dist, toLocal, bboxOf, pointInRing, segmentDistance } from './geo'
 import { Fact, estimateRoadWidth } from './rules'
 import type { EdgeRole } from './envelope'
 
@@ -76,10 +76,18 @@ export interface RoadOption {
 
 export function roadOptions(roads: ContextRoad[], frame: Frame, plot: Ring, maxDistance = 90): RoadOption[] {
   const groups = new Map<string, RoadOption>()
+  const bounds=bboxOf(plot)
   for (const r of roads) {
     if (!FRONTABLE.has(r.highway) || r.tunnel || r.bridge) continue
     const line = r.line.map((p) => toLocal(frame, p))
-    const d = Math.min(...plot.map((v) => distToPolyline(v, line)), ...line.map((q) => Math.min(...plot.map((v) => dist(v, q)))))
+    if(line.length<2)continue
+    const roadBounds=bboxOf(line)
+    const dx=Math.max(bounds.minX-roadBounds.maxX,roadBounds.minX-bounds.maxX,0)
+    const dy=Math.max(bounds.minY-roadBounds.maxY,roadBounds.minY-bounds.maxY,0)
+    if(Math.hypot(dx,dy)>maxDistance)continue
+    let d=line.some(p=>pointInRing(p,plot)) ? 0 : Infinity
+    for(let i=0;d>0 && i<plot.length;i++)for(let j=1;j<line.length;j++)
+      d=Math.min(d,segmentDistance(plot[i],plot[(i+1)%plot.length],line[j-1],line[j]))
     if (d > maxDistance) continue
     const key = `${r.name || `(unnamed ${r.id})`}|${r.highway}`
     const g = groups.get(key)
@@ -127,8 +135,10 @@ export function classifyEdges(plot: Ring, road: RoadOption | null, roadWidth: nu
   for (let i = 0; i < n; i++) {
     const a = plot[i]
     const b = plot[(i + 1) % n]
-    const mids: Pt[] = [[(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], a, b]
-    const d = Math.min(...mids.map((m) => distToRoad(m, road)))
+    const mids: Pt[] = [0.25,0.5,0.75].map(t=>[a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])])
+    // An endpoint alone is shared by the adjacent edge. Sample along the edge
+    // so a long perpendicular side cannot masquerade as road frontage.
+    const d = mids.reduce((sum,m)=>sum+distToRoad(m,road),0)/mids.length
     // prefer longer edges when two edges are about equally close (corner plots)
     const score = d - Math.min(dist(a, b), 40) * 0.02
     if (score < bestD) {

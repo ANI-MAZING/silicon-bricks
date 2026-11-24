@@ -424,7 +424,7 @@ function Designs({ model }: { model: Model }) {
       </ul>
 
       </details>
-      <div className="open-space"><span>Open ground <b>{n0(rules.plotArea-d.groundArea)} m²</b></span><span>Min. permeable planting reservation <b>{n0(0.5*rules.osr/100*d.totalGFA)} m²</b></span></div>
+      <div className="open-space"><span>Open ground <b>{n0(rules.plotArea-d.projectedArea)} m²</b></span><span>Min. permeable planting reservation <b>{n0(0.5*rules.osr/100*d.totalGFA)} m²</b></span></div>
       <h3>Floor schedule</h3>
       <div className="tablewrap">
         <table aria-label="Selected concept floor areas">

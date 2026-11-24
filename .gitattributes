@@ -1,0 +1,2 @@
+# Preserve the audited upstream runtime byte-for-byte across platforms.
+vendor/clipper2-js/index.mjs -text

@@ -1,0 +1,14 @@
+{
+  "name": "clipper2-js",
+  "version": "1.2.4",
+  "type": "module",
+  "license": "BSL-1.0",
+  "main": "./index.mjs",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.mjs"
+    }
+  }
+}

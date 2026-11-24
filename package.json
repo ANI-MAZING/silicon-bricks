@@ -11,7 +11,7 @@
     "bake": "node scripts/bake-context.mjs"
   },
   "dependencies": {
-    "clipper2-js": "^1.2.4",
+    "clipper2-js": "file:vendor/clipper2-js",
     "maplibre-gl": "^6.19.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

@@ -89,6 +89,11 @@ export function distToPolyline(p: Pt, line: Pt[]): number {
   return m
 }
 
+/** Exact minimum segment distance, including crossings and collinear contact. */
+export function segmentDistance(a:Pt,b:Pt,c:Pt,d:Pt):number {
+  return segIntersect(a,b,c,d) ? 0 : Math.min(distToSegment(a,c,d),distToSegment(b,c,d),distToSegment(c,a,b),distToSegment(d,a,b))
+}
+
 // ---------- validation ----------
 function segIntersect(a: Pt, b: Pt, c: Pt, d: Pt): boolean {
   const o = (p: Pt, q: Pt, r: Pt) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])

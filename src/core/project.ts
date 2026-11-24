@@ -18,7 +18,7 @@ export function reportJSON(input:ModelInput,model:Model) {
     scope:'Preliminary 2013 พ.3 scenario; parcel zoning, effective local overlays, public road status, right-of-way and continuity require verification. No transit bonus or exception claimed. Not a permit or compliance certificate.',
     sources:SOURCES,scenario:input,areaM2:model.validation.area,road:model.road?.name,roadWidth:model.roadWidth,
     rules:model.rules?.lines,notices:model.notices,concepts:model.results.map(r=>({ ...r.design, floors:r.design.floors.map(({polys:_polys,...f})=>f), checks:r.checks, allModelChecksPass:r.allPass,
-      openGroundM2:model.validation.area-r.design.groundArea,minimumPermeablePlantingM2:0.5*(model.rules?.osr??0)/100*r.design.totalGFA }))},null,2)
+      openGroundM2:model.validation.area-r.design.projectedArea,minimumPermeablePlantingM2:0.5*(model.rules?.osr??0)/100*r.design.totalGFA }))},null,2)
 }
 const csv=(v:unknown)=>`"${String(v).replaceAll('"','""')}"`
 export function floorCSV(model:Model,designId:string) {

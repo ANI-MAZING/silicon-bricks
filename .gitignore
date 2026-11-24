@@ -9,3 +9,8 @@ test-results
 playwright-report
 tmp
 docs/submission-doc.txt
+
+.vercel/
+work/
+outputs/
+.kiro/

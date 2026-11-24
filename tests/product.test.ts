@@ -1,11 +1,11 @@
 import { describe, expect, it, beforeEach } from 'vitest'
-import { difference, makeFrame, polysArea, toLonLat, validatePlot, type Ring } from '../src/core/geo'
+import { difference, makeFrame, polysArea, union, toLonLat, validatePlot, type Ring } from '../src/core/geo'
 import { estimateRoadWidth, roadSetback, resolveRules } from '../src/core/rules'
 import { computeModel, type ModelInput } from '../src/core/model'
 import { checkDesign } from '../src/core/designs'
 import { floorCSV, projectJSON, readProject, reportJSON } from '../src/core/project'
 import { SAMPLE_PLOT, useStore } from '../src/store'
-import { parseContext, type RawContext } from '../src/core/context'
+import { classifyEdges, roadOptions, parseContext, type RawContext } from '../src/core/context'
 import context from '../src/data/context.json'
 const frame=makeFrame(100.5655,13.7578)
 const plot:Ring=[[0,0],[40,0],[40,40],[0,40]]
@@ -115,5 +115,42 @@ describe('edit history',()=>{
   })
   it('a new edit clears the redo branch',()=>{
     const s=useStore.getState();s.useSample();s.clearPlot();s.undo();s.checkpoint();s.setVertex(0,[100.565,13.756]);expect(useStore.getState().future).toEqual([])
+  })
+})
+
+
+describe('release review regressions',()=>{
+  it('finds a short road near the middle of a long plot edge',()=>{
+    const long:Ring=[[0,0],[300,0],[300,100],[0,100]]
+    const shortRoad={...road,line:[toLonLat(frame,[150,-10]),toLonLat(frame,[151,-10])]}
+    const options=roadOptions([shortRoad],frame,long)
+    expect(options).toHaveLength(1)
+    expect(options[0].distance).toBeCloseTo(10,5)
+  })
+  it('does not choose a longer perpendicular side as frontage at a shared corner',()=>{
+    const narrow:Ring=[[0,0],[20,0],[20,100],[0,100]]
+    const options=roadOptions([road],frame,narrow)
+    const edges=classifyEdges(narrow,options[0],24)
+    expect(edges.frontIndex).toBe(0)
+    expect(edges.frontLength).toBe(20)
+  })
+  it('sees road segments crossing the boundary even when endpoints are far away',()=>{
+    const crossing={...road,line:[toLonLat(frame,[-300,20]),toLonLat(frame,[300,20])]}
+    expect(roadOptions([crossing],frame,plot)[0].distance).toBe(0)
+  })
+  it('rejects net and core totals that offset one another',()=>{
+    const m=run();const d=structuredClone(m.results[0].design)
+    d.totalNet+=5;d.totalCore-=5
+    const checks=checkDesign(d,{plot:m.plotLocal,roles:m.edges!.roles,rules:m.rules!,frontage:{length:40,gapToRoadEdge:0,hasRoad:true}})
+    expect(checks.find(c=>c.id==='sum')!.pass).toBe(false)
+  })
+  it('reports actual projected open ground consistently with the checklist geometry',()=>{
+    const m=run();const report=JSON.parse(reportJSON(input,m))
+    for(let i=0;i<m.results.length;i++){
+      const d=m.results[i].design
+      const projected=polysArea(union(d.floors.flatMap(f=>f.polys)))
+      expect(d.projectedArea).toBeCloseTo(projected,6)
+      expect(report.concepts[i].openGroundM2).toBeCloseTo(m.validation.area-projected,6)
+    }
   })
 })

@@ -27,6 +27,7 @@ export interface Design {
   totalNet: number
   totalCore: number
   groundArea: number
+  projectedArea: number
 }
 
 export interface CheckItem {
@@ -70,6 +71,7 @@ function finish(id: Design['id'], name: string, blurb: string, floors: Floor[]):
     totalNet: T((f) => f.net),
     totalCore: T((f) => f.core),
     groundArea: floors[0]?.area ?? 0,
+    projectedArea: floors.length ? polysArea(union(floors.flatMap(f=>f.polys))) : 0,
   }
 }
 
@@ -183,7 +185,10 @@ export function checkDesign(d: Design, cx: CheckContext): CheckItem[] {
   const sumParts = d.floors.reduce((s, f) => s + Math.round((f.net + f.core) * 10), 0)
   const geomOff = Math.max(0, ...d.floors.map((f) => Math.abs(polysArea(f.polys) - f.area)))
   const everyFloorAddsUp = d.floors.every(f => Math.round((f.net + f.core)*10) === Math.round(f.area*10))
-  const addsUp = d.floors.length > 0 && everyFloorAddsUp && sumFloors === Math.round(d.totalGFA * 10) && sumParts === sumFloors && Math.round((d.totalNet + d.totalCore) * 10) === sumFloors && geomOff < 0.1 + 1e-6
+  const sumNet=d.floors.reduce((s,f)=>s+Math.round(f.net*10),0)
+  const sumCore=d.floors.reduce((s,f)=>s+Math.round(f.core*10),0)
+  const totalsMatchParts=sumNet===Math.round(d.totalNet*10) && sumCore===Math.round(d.totalCore*10)
+  const addsUp = d.floors.length > 0 && totalsMatchParts && everyFloorAddsUp && sumFloors === Math.round(d.totalGFA * 10) && sumParts === sumFloors && Math.round((d.totalNet + d.totalCore) * 10) === sumFloors && geomOff < 0.1 + 1e-6
   add({
     id: 'sum',
     label: 'Floor areas add up to the totals',

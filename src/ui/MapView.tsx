@@ -75,7 +75,17 @@ export default function MapView({ frame, buildings, roads, model }: Props) {
     const canvas = map.getCanvas()
     const lost = (e:Event) => { e.preventDefault(); setMapStatus('error') }
     canvas.addEventListener('webglcontextlost', lost)
-    const resize = new ResizeObserver(() => map.resize())
+    let previousSize=`${map.getContainer().clientWidth}x${map.getContainer().clientHeight}`
+    const resize = new ResizeObserver(() => {
+      const container=map.getContainer()
+      const size=`${container.clientWidth}x${container.clientHeight}`
+      if(size===previousSize)return
+      previousSize=size
+      // An in-flight camera animation captured the old viewport transform.
+      // Stop it before resizing so the selected plot does not drift off-centre.
+      map.stop()
+      map.resize()
+    })
     resize.observe(el.current!)
     mapRef.current = map
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right')
