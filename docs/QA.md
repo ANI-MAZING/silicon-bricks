@@ -30,7 +30,7 @@ Tested at `127.0.0.1:4173` using the built `dist/`, rather than the development 
 
 ## Release limitations
 
-The original Vercel connection returned403 due to missing team authorization. The current release is prepared for a public GitHub repository with verification and GitHub Pages deployment in its workflow. Remote CI and the deployed URL must be verified after pushing. No assignment submission is performed.
+Public source: https://github.com/ANI-MAZING/silicon-bricks . Public app: https://ani-mazing.github.io/silicon-bricks/ . GitHub Actions run45470541623 passed the clean install,86 tests, production build, dependency audit and Pages deployment. The public app was opened without sign-in; map workers loaded and all three sample concepts passed model checks with no browser errors. Vercel authorization is not needed for this GitHub Pages deployment. No assignment submission is performed.
 
 Legal / survey limitations and the vendored geometry dependency provenance are documented in README, SOURCES and vendor/clipper2-js/UPSTREAM.md. npm audit reports zero vulnerabilities after removing the unused obsolete Angular peers. Neither passing tests nor reading a statutory figure establishes a complete legal compliance assessment.
 

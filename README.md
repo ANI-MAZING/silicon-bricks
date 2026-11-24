@@ -1,5 +1,7 @@
 # Plot Envelope · Bangkok
 
+[Open the live app](https://ani-mazing.github.io/silicon-bricks/) · [Build and test status](https://github.com/ANI-MAZING/silicon-bricks/actions)
+
 A browser feasibility studio for drawing a plot in the Rama 9 study area and comparing three building massing concepts under one explicit **พ.3 commercial / Bangkok 2013 plan scenario**.
 
 This is a preliminary scenario tool. It does not identify a parcel's official zoning, certify current local overlays, establish legal road right-of-way or public-road status, verify a continuous fire access route, or issue a compliance / permit approval. Sources and modelling assumptions appear beside the results and in exported reports.
